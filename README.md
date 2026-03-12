@@ -15,6 +15,7 @@ The Core Concept: A build-time tool that generates unique HTML files for each pi
 **The Trade-off Acknowledged**: Content created after deployment (new user profiles) won't have HTML files immediately. But metadata for those pages is less critical, so either default metadata or simple periodic rebuilds are "good enough."
 
 ## Architecture
+### Flowchart
 ```mermaid
 flowchart TD
     %% Styles
@@ -70,4 +71,53 @@ flowchart TD
     L4["⚙️ weweb.config.js: Central configuration file"]:::note
     
     L1 ~~~ L2 ~~~ L3 ~~~ L4
+```
+### Project Folder Transformation
+#### Before: WeWeb Export (No Metadata)
+```
+dist/
+├── index.html                          # Homepage (static)
+├── about.html                           # About page (static)
+├── article/
+│   └── index.html                       # ONE template for ALL articles
+│                                         # <title>My Site</title> (same for all!)
+├── product/
+│   └── index.html                       # ONE template for ALL products
+└── assets/                               # JS, CSS, images
+    ├── index.[hash].js
+    └── index.[hash].css
+```
+
+**The Problem**: Every article at `/article/1`, `/article/2`, etc. serves the EXACT same HTML file with identical metadata.
+
+---
+#### After: Tool Runs
+```
+dist/
+├── index.html                          # Unchanged
+├── about.html                           # Unchanged
+├── article/
+│   ├── index.html                       # TEMPLATE with <!-- METADATA --> placeholder
+│   │                                     # Vue app still loads dynamically!
+│   │
+│   ├── heads/                            # Generated head snippets
+│   │   ├── 1.html                        # <title>Article 1</title><meta...>
+│   │   ├── 2.html                        # <title>Article 2</title><meta...>
+│   │   ├── 3.html                        # <title>Article 3</title><meta...>
+│   │   └── ...                            # One per article
+│   │
+│   └── (optional with edge injection)
+│       ├── 1/
+│       │   └── index.html                 # Complete static file (alternative)
+│       ├── 2/
+│       │   └── index.html
+│       └── ...
+│
+├── product/
+│   ├── index.html                       # TEMPLATE with placeholder
+│   └── heads/
+│       ├── 101.html
+│       ├── 102.html
+│       └── ...
+
 ```
