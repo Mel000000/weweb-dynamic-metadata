@@ -124,3 +124,20 @@ dist/
 │       └── ...
 
 ```
+## Setup
+
+### Superbase
+
+#### Metadata Enpoint in Superbase (View)
+
+```
+-- Create a view that formats your article data as metadata
+CREATE VIEW properties_metadata AS
+SELECT 
+  id,
+  title AS meta_title,
+  LEFT(content, 160) AS meta_description,  -- First 160 chars for description
+  image_url AS og_image,
+  'article, blog, ' || LOWER(title) AS keywords  -- Simple keywords
+FROM properties;
+```
