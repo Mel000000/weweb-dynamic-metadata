@@ -128,7 +128,7 @@ dist/
 
 ### Superbase
 
-#### Metadata Enpoint in Superbase (View)
+#### Metadata Enpoint (setting up View for direct access)
 
 ```
 -- Create a view that formats your article data as metadata
@@ -140,4 +140,16 @@ SELECT
   image_url AS og_image,
   'article, blog, ' || LOWER(title) AS keywords  -- Simple keywords
 FROM properties;
+```
+#### setting up Security
+```
+-- Enable RLS on your table
+ALTER TABLE properties ENABLE ROW LEVEL SECURITY;
+
+-- Allow public read access
+CREATE POLICY "Allow public read access" 
+ON properties
+FOR SELECT 
+TO anon 
+USING (true);
 ```
