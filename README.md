@@ -75,17 +75,20 @@ flowchart TD
 ### Project Folder Transformation
 #### Before: WeWeb Export (No Metadata)
 ```
-dist/
-├── index.html                          # Homepage (static)
-├── about.html                           # About page (static)
+dist/ (or built project root)
 ├── article/
-│   └── index.html                       # ONE template for ALL articles
-│                                         # <title>My Site</title> (same for all!)
-├── product/
-│   └── index.html                       # ONE template for ALL products
-└── assets/                               # JS, CSS, images
-    ├── index.[hash].js
-    └── index.[hash].css
+│   └── _param/                    # Dynamic route template
+│       └── index.html              # The file you'll transform!
+├── assets/                          # JS, CSS, images (hashed filenames)
+├── data/                             # Static data files
+├── fonts/Phosphor/                   # Font files
+├── icons/lucide/                      # Icon files
+├── images/                             # Image assets
+├── index.html                          # Homepage
+├── manifest.json                        # PWA manifest
+├── robots.txt                            # SEO
+├── serviceworker.js                       # PWA service worker
+└── sitemap.xml                              # Sitemap
 ```
 
 **The Problem**: Every article at `/article/1`, `/article/2`, etc. serves the EXACT same HTML file with identical metadata.
