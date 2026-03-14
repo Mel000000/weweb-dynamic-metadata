@@ -1,11 +1,9 @@
 # weweb-dynamic-metadata
 ⭐ Build-time SEO metadata generator for WeWeb static exports
 
-![Release](https://img.shields.io/github/v/release/Mel000000/weweb-dynamic-metadata)
-[![CI](https://github.com/Mel000000/weweb-dynamic-metadata/actions/workflows/test.yml/badge.svg)](https://github.com/Mel000000/weweb-dynamic-metadata/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-![npm](https://img.shields.io/npm/v/weweb-dynamic-metadata)
-![npm downloads](https://img.shields.io/npm/dm/weweb-dynamic-metadata)
+![Version](https://img.shields.io/npm/v/weweb-dynamic-metadata)
+![Downloads](https://img.shields.io/npm/dm/weweb-dynamic-metadata)
+![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 [![GitHub stars](https://img.shields.io/github/stars/Mel000000/weweb-dynamic-metadata?style=social)](https://github.com/Mel000000/weweb-dynamic-metadata/stargazers)
 
 A build-time tool that generates unique SEO metadata for each dynamic page in your WeWeb project. Zero runtime overhead, perfect SEO, and completely free.
