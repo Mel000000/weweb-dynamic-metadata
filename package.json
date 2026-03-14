@@ -1,23 +1,23 @@
 {
   "name": "weweb-dynamic-metadata",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
-  "description": "Inject dynamic metadata into WeWeb static exports for SEO perfection",
-  "main": "index.js",
+  "description": "Generate dynamic metadata for WeWeb static exports",
+  "main": "src/index.js",
   "bin": {
-    "weweb-dynamic-metadata": "bin/weweb-dynamic-metadata.js"
+    "weweb-metadata": "src/index.js"
   },
-  "directories": {
-    "example": "examples",
-    "test": "test"
-  },
+  "files": [
+    "src/",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
-    "test": "node test/run.js",
-    "start": "node bin/weweb-metadata.js"
+    "test": "node test/run.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Mel000000/weweb-dynamic-metadata.git"
+  "dependencies": {
+    "fs-extra": "^11.3.4",
+    "dotenv": "^17.3.1"
   },
   "keywords": [
     "weweb",
@@ -27,11 +27,12 @@
   ],
   "author": "Melina Reisinger",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mel000000/weweb-dynamic-metadata.git"
+  },
   "bugs": {
     "url": "https://github.com/Mel000000/weweb-dynamic-metadata/issues"
   },
-  "homepage": "https://github.com/Mel000000/weweb-dynamic-metadata#readme",
-  "dependencies": {
-    "dotenv": "^17.3.1"
-  }
+  "homepage": "https://github.com/Mel000000/weweb-dynamic-metadata#readme"
 }
