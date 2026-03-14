@@ -1,0 +1,31 @@
+# .npmignore
+# Tests
+test/
+tests/
+__tests__/
+
+# Config files
+.env
+.env.local
+.env.*.local
+weweb.config.js
+weweb.config.example.js
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Don't ignore these (they're already in "files" in package.json)
+# src/
+# README.md
+# LICENSE
