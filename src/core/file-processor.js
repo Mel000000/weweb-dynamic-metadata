@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'url';
+import { getConfigPath, getOutputDir, getRoutePaths } from '../utils/paths.js';
 import path from 'path';
 import fs from 'fs-extra';
 import { injectScriptInTemplate } from "../utils/template-injector.js";
@@ -9,51 +10,30 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 async function readConfig() {
     try {
         const configPath = getConfigPath();
-        
-        // Check if config exists
-        if (!await fs.pathExists(configPath)) {
-            throw new Error(`weweb.config.js not found at ${configPath}`);
-        }
-        
         const configUrl = new URL(`file://${configPath.replace(/\\/g, '/')}`);
         const configModule = await import(configUrl.href);
         const config = configModule.default || configModule;
         
-        const { supabase, pages } = config;
-        
-        // Validate required fields
-        if (!supabase?.url || !supabase?.anonKey) {
-            throw new Error('supabase.url and supabase.anonKey are required in config');
-        }
-        
-        if (!Array.isArray(pages) || pages.length === 0) {
-            throw new Error('pages array is required in config');
-        }
+        const { supabase, pages, outputDir } = config;
         
         return {
             supabase,
-            pages: pages.map(page => {
-                if (!page.route || !page.table || !page.metadata) {
-                    throw new Error('Each page must have route, table, and metadata fields');
-                }
-                
-                return {
-                    route: page.route,
-                    table: page.table,
-                    metadataEndpoint: `${supabase.url}/rest/v1/${page.table}?id=eq.{id}&select=${Object.values(page.metadata).join(',')}`,
-                    headers: {
-                        'apikey': supabase.anonKey,
-                        'Authorization': `Bearer ${supabase.anonKey}`
-                    },
-                    metadataFields: Object.values(page.metadata)
-                };
-            })
+            outputDir, // Pass this through
+            pages: pages.map(page => ({
+                route: page.route,
+                table: page.table,
+                metadataEndpoint: `${supabase.url}/rest/v1/${page.table}?id=eq.{id}&select=${Object.values(page.metadata).join(',')}`,
+                headers: {
+                    'apikey': supabase.anonKey,
+                    'Authorization': `Bearer ${supabase.anonKey}`
+                },
+                metadataFields: Object.values(page.metadata)
+            }))
         };
     } catch (error) {
         throw new Error(`Config error: ${error.message}`);
     }
 }
-
 
 // ========== ID DISCOVERY ==========
 async function discoverIds(page) {
@@ -181,9 +161,7 @@ export async function processFiles() {
             
             // Setup paths
             const routeName = page.route.split('/')[1];
-            const baseDir = process.env.NODE_ENV === 'production' 
-                ? path.join(process.cwd(), 'dist')
-                : path.join(process.cwd(), 'test', 'fixtures', 'postBuild');
+            const baseDir = config.outputDir || getOutputDir();
             
             const paramDir = path.join(baseDir, routeName, '_param');
             const articleRootDir = path.join(baseDir, routeName);

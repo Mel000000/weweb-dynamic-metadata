@@ -1,20 +1,40 @@
 // src/utils/paths.js
 import path from 'path';
-
-export function getProjectRoot() {
-    // When running as a package, the user's project root is process.cwd()
-    return process.cwd();
-}
+import fs from 'fs-extra';
 
 export function getConfigPath() {
-    return path.join(getProjectRoot(), 'weweb.config.js');
+    return path.join(process.cwd(), 'weweb.config.js');
 }
 
 export function getOutputDir() {
-    const projectRoot = getProjectRoot();
-    return process.env.NODE_ENV === 'production'
-        ? path.join(projectRoot, 'dist')
-        : path.join(projectRoot, 'test', 'fixtures', 'postBuild');
+    const projectRoot = process.cwd();
+    
+    // First, check if 'dist' exists (production build)
+    const distPath = path.join(projectRoot, 'dist');
+    if (fs.existsSync(distPath)) {
+        return distPath;
+    }
+    
+    // Check common WeWeb export locations
+    const possiblePaths = [
+        path.join(projectRoot, 'out'),           // WeWeb default export
+        path.join(projectRoot, 'build'),          // Common build folder
+        path.join(projectRoot, 'www'),            // Another common one
+        path.join(projectRoot, 'public'),         // Static folder
+    ];
+    
+    for (const testPath of possiblePaths) {
+        if (fs.existsSync(testPath)) {
+            return testPath;
+        }
+    }
+    
+    // If no existing build found, ask user to specify
+    throw new Error(
+        'Could not find your WeWeb build folder.\n' +
+        'Please ensure you have run "weweb export" first,\n' +
+        'or specify the path in weweb.config.js'
+    );
 }
 
 export function getRoutePaths(baseDir, route) {

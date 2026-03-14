@@ -27,6 +27,7 @@ function colorize(text, color) {
 
 console.log(`${colorize('🚀 WeWeb Dynamic Metadata Generator', 'cyan')}\n`);
 
+export { processFiles };
 // Handle the promise properly
 if (import.meta.url === `file://${process.argv[1]}`) {
     processFiles()
