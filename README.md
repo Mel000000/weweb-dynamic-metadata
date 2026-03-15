@@ -173,12 +173,23 @@ FOR SELECT
 TO anon 
 USING (true);
 ```
-#### 2. Set Up Environment Variables
+#### 2. Get Your Supabase API Key
+In your Supabase dashboard, go to **Project Settings > API Keys**. You'll see two types of keys:
+
+| Key Type | Format | When to Use |
+|----------|--------|-------------|
+| **Project URL** | `https://your-project.supabase.co` | Always needed |
+| **anon / publishable key** | `sb_publishable_...` or JWT | Legacy option (being phased out) |
+| **secret key** (recommended) | `sb_secret_...` | ✅ **Recommended for new projects** |
+
+> **Note:** Supabase is transitioning away from the legacy anon key. For new projects, use the **secret key** (starts with `sb_secret_...`). If you're using an older project, the anon key will continue working for now, but consider migrating to the new key format.
+
+#### 3. Set Up Environment Variables
 Create a ``.env`` file in your project root to store your Supabase credentials securely:
 ```.env
 # .env file
 SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=your-anon-key-here
+SUPABASE_KEY=your-secret-or-anon-key-here
 ```
 ⚠️ Important: Never commit your .env file to version control. Add it to your .gitignore:
 ```text
@@ -187,14 +198,14 @@ SUPABASE_ANON_KEY=your-anon-key-here
 ```
 The package uses dotenv to automatically load these environment variables when you run the generator.
 
-#### 3. Create Config File
+#### 4. Create Config File
 Create ``weweb.config.js`` in your project root:
 ```javascript
 export default {
   // Your Supabase configuration
   supabase: {
     url: process.env.SUPABASE_URL,
-    anonKey: process.env.SUPABASE_ANON_KEY
+    apikey: process.env.SUPABASE_KEY  // Works with both anon and secret keys
   },
   
   // Optional: Specify your build folder (defaults to ./dist)
@@ -203,8 +214,8 @@ export default {
   // Define your dynamic routes
   pages: [
     {
-      route: "/article/:id",
-      table: "articles",              // Your Supabase table name
+      route: "/your-page-name/:id",
+      table: "table-view-name",              // Your Supabase table name
       metadata: {
         title: "title",                // Database field for title 
         content: "excerpt",            // Database field for description
@@ -214,13 +225,12 @@ export default {
   ]
 };
 ```
-#### 4. Run the Generator
+#### 5. Run the Generator
 ```bash
 # One-time generation
 npx @mel000000/weweb-dynamic-metadata
 
 ```
-
 ## How It Works
 
 ### 1. Reads Your Config
