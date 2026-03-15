@@ -109,7 +109,7 @@ This project provides a **simpler, cheaper, faster alternative**:
 
 ```bash
 # One-time setup
-npm install --save-dev weweb-dynamic-metadata
+npm install --save-dev @mel000000/weweb-dynamic-metadata
 
 # Generate metadata (run after each WeWeb export)
 npx @mel000000/weweb-dynamic-metadata
