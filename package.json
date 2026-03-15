@@ -1,5 +1,5 @@
 {
-  "name": "weweb-dynamic-metadata",
+  "name": "@mel000000/weweb-dynamic-metadata",
   "version": "1.0.5",
   "type": "module",
   "description": "Generate dynamic metadata for WeWeb static exports",
