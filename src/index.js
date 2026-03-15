@@ -6,45 +6,46 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Load environment variables from project root
+// Load environment variables
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
-// Simple console colors
-const colors = {
-    reset: '\x1b[0m',
-    green: '\x1b[32m',
-    red: '\x1b[31m',
-    yellow: '\x1b[33m',
-    cyan: '\x1b[36m',
-    magenta: '\x1b[35m',
-    blue: '\x1b[34m'
-};
+// Check if output is being piped
+const isPiped = !process.stdout.isTTY;
 
-// Helper to safely use colors
-function colorize(text, color) {
-    return colors[color] ? `${colors[color]}${text}${colors.reset}` : text;
-}
-
-console.log(`${colorize('🚀 WeWeb Dynamic Metadata Generator', 'cyan')}\n`);
-
+// Export for programmatic use
 export { processFiles };
-// Handle the promise properly
+
+// CLI support
 if (import.meta.url === `file://${process.argv[1]}`) {
+    // Only show startup message if not piped
+    if (!isPiped) {
+        console.log('🚀 WeWeb Dynamic Metadata Generator\n');
+    }
+    
     processFiles()
         .then(result => {
-            console.log(`\n${colorize('╔' + '═'.repeat(48) + '╗', 'magenta')}`);
-            console.log(`${colorize('║', 'magenta')}${colorize('🎉 GENERATION COMPLETE'.padEnd(48), 'green')}${colorize('║', 'magenta')}`);
-            console.log(`${colorize('╟' + '─'.repeat(48) + '╢', 'magenta')}`);
-            console.log(`${colorize('║', 'magenta')}   ⏱️  Duration: ${result.duration}s`.padEnd(50) + `${colorize('║', 'magenta')}`);
-            console.log(`${colorize('║', 'magenta')}   📊 Total entries: ${result.totalMetadataEntries}`.padEnd(50) + `${colorize('║', 'magenta')}`);
-            console.log(`${colorize('║', 'magenta')}   📁 Output: ${path.basename(result.outputDirectories[0])}`.padEnd(50) + `${colorize('║', 'magenta')}`);
-            console.log(`${colorize('╚' + '═'.repeat(48) + '╝', 'magenta')}\n`);
-            
+            if (isPiped) {
+                // If piped, output ONLY JSON
+                console.log(JSON.stringify(result));
+            } else {
+                // If direct terminal, show pretty output
+                console.log('\n╔' + '═'.repeat(48) + '╗');
+                console.log('║' + '🎉 GENERATION COMPLETE'.padEnd(48) + '║');
+                console.log('╟' + '─'.repeat(48) + '╢');
+                console.log(`║   ⏱️  Duration: ${result.duration}s`.padEnd(50) + '║');
+                console.log(`║   📊 Total entries: ${result.totalMetadataEntries}`.padEnd(50) + '║');
+                console.log(`║   📁 Output: ${path.basename(result.outputDirectories[0])}`.padEnd(50) + '║');
+                console.log('╚' + '═'.repeat(48) + '╝\n');
+            }
             process.exit(0);
         })
         .catch(error => {
-            console.error(`\n${colorize('❌ Generation failed:', 'red')}`, error.message);
-            console.error(error.stack);
+            if (isPiped) {
+                // If piped, output error as JSON
+                console.log(JSON.stringify({ error: error.message }));
+            } else {
+                console.error('\n❌ Generation failed:', error.message);
+            }
             process.exit(1);
         });
 }
