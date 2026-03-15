@@ -1,8 +1,8 @@
 # weweb-dynamic-metadata
 ⭐ Build-time SEO metadata generator for WeWeb static exports
 
-[![npm version](https://img.shields.io/npm/v/weweb-dynamic-metadata)](https://www.npmjs.com/package/weweb-dynamic-metadata)
-[![npm downloads](https://img.shields.io/npm/dm/weweb-dynamic-metadata)](https://www.npmjs.com/package/weweb-dynamic-metadata)
+[![npm version](https://img.shields.io/npm/v/@mel000000/weweb-dynamic-metadata)](https://www.npmjs.com/package/@mel000000/weweb-dynamic-metadata)
+[![npm downloads](https://img.shields.io/npm/dm/@mel000000/weweb-dynamic-metadata)](https://www.npmjs.com/package/@mel000000/weweb-dynamic-metadata)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![GitHub stars](https://img.shields.io/github/stars/Mel000000/weweb-dynamic-metadata?style=social)](https://github.com/Mel000000/weweb-dynamic-metadata)
 
@@ -23,8 +23,9 @@ A build-time tool that generates unique SEO metadata for each dynamic page in yo
 - [Prerequisites Checklist](#prerequisites-checklist)
 - [Setup](#setup)
   - [1. Configure Supabase](#1-configure-supabase)
-  - [2. Create Config File](#2-create-config-file)
-  - [3. Run the Generator](#3-run-the-generator)
+  - [2. Set Up Environment Variables](#2-set-up-environment-variables)
+  - [3. Create Config File](#3-create-config-file)
+  - [4. Run the Generator](#4-run-the-generator)
 - [How It Works](#how-it-works)
   - [1. Reads Your Config](#1-reads-your-config)
   - [2. Discovers Content IDs](#2-discovers-content-ids)
@@ -103,7 +104,7 @@ This project provides a **simpler, cheaper, faster alternative**:
 
 1. Export your WeWeb project (creates `dist/` folder)
 2. Create `weweb.config.js` in your project root
-3. Run `npx weweb-dynamic-metadata`
+3. Run `npx @mel000000/weweb-dynamic-metadata` or `npx weweb-metadata`
 4. Deploy anywhere - each article now has unique metadata!
 
 ```bash
@@ -111,7 +112,7 @@ This project provides a **simpler, cheaper, faster alternative**:
 npm install --save-dev weweb-dynamic-metadata
 
 # Generate metadata (run after each WeWeb export)
-npx weweb-dynamic-metadata
+npx @mel000000/weweb-dynamic-metadata
 
 # That's it! Your articles now have unique SEO metadata
 ```
@@ -130,13 +131,13 @@ npx weweb-dynamic-metadata
 ## Quick Start
 ```bash
 # 1. Install the package
-npm install --save-dev weweb-dynamic-metadata
+npm install --save-dev @mel000000/weweb-dynamic-metadata
 
 # 2. Create weweb.config.js in your project root
 # (see Setup section below)
 
 # 3. Run it!
-npx weweb-dynamic-metadata
+npx @mel000000/weweb-dynamic-metadata
 
 # Done! Your articles now have unique metadata
 ```
@@ -144,7 +145,7 @@ npx weweb-dynamic-metadata
 
 ###  Prerequisites Checklist
 Before using this package, ensure you have:
-- A WeWeb project exported to static files (has ``article/_param/index.html``)
+- A WeWeb project exported to static files (has ``your-page-name/_param/index.html``)
 - Node.js 18 or higher installed
 - A Supabase project with your content
 - Your Supabase URL and anon key ready
@@ -172,7 +173,21 @@ FOR SELECT
 TO anon 
 USING (true);
 ```
-#### 2. Create Config File
+#### 2. Set Up Environment Variables
+Create a ``.env`` file in your project root to store your Supabase credentials securely:
+```.env
+# .env file
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-anon-key-here
+```
+⚠️ Important: Never commit your .env file to version control. Add it to your .gitignore:
+```text
+# .gitignore
+.env
+```
+The package uses dotenv to automatically load these environment variables when you run the generator.
+
+#### 3. Create Config File
 Create ``weweb.config.js`` in your project root:
 ```javascript
 export default {
@@ -199,18 +214,11 @@ export default {
   ]
 };
 ```
-#### 3. Run the Generator
+#### 4. Run the Generator
 ```bash
 # One-time generation
-npx weweb-dynamic-metadata
+npx @mel000000/weweb-dynamic-metadata
 
-# Add to your package.json scripts
-{
-  "scripts": {
-    "build:metadata": "weweb-dynamic-metadata",
-    "build": "weweb export && weweb-dynamic-metadata"
-  }
-}
 ```
 
 ## How It Works
@@ -268,7 +276,7 @@ flowchart TD
 
     subgraph Build ["🔵 Build Time - Metadata Generation"]
         direction TB
-        E["Run: npx weweb-dynamic-metadata"] --> F
+        E["Run: npx @mel000000/weweb-dynamic-metadata"] --> F
         F["Read weweb.config.js"] --> G
         G["Validate configuration"] --> I["For each dynamic route:<br/>e.g., /article/:id"]
         
@@ -328,7 +336,7 @@ dist/ (or your build folder)
 │       └── index.html              # Same for ALL articles!
 ├── assets/
 ├── index.html
-└── ...            # Sitemap
+└── ...            
 ```
 
 **The Problem**: Every article at `/your-page-name/1`, `/your-page-name/2`, etc. serves the EXACT same HTML file with identical metadata.
@@ -376,10 +384,26 @@ After running, you'll get a JSON summary:
   "duration": "2.34"
 }
 ```
+and an overview in the console:
+```text
+[dotenv@17.3.1] injecting env (2) from .env -- tip: 🛡️ auth for agents: https://vestauth.com
+🚀 WeWeb Dynamic Metadata Generator
+
+⏭️ Metadata injector already present in: article\_param\index.html
+🧹 Found 2 duplicate injectors, cleaning up...
+
+╔════════════════════════════════════════════════╗
+║🎉 GENERATION COMPLETE                          ║
+╟────────────────────────────────────────────────╢
+║   ⏱️  Duration: 1.31s                           ║
+║   📊 Total entries: 9                           ║
+║   📁 Output: article                            ║
+╚════════════════════════════════════════════════╝
+```
 ## Programmatic Usage
 
 ```javascript
-import { processFiles } from 'weweb-dynamic-metadata';
+import { processFiles } from '@mel000000/weweb-dynamic-metadata';
 
 const result = await processFiles();
 console.log(`Generated ${result.totalMetadataEntries} metadata entries`);
