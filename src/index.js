@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { processFiles } from "./core/file-processor.js";
+import { injectScriptIntoPackage } from "./utils/package-injector.js";
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -7,16 +8,26 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Load environment variables
-dotenv.config({ path: path.join(__dirname, '..', '.env') });
+dotenv.config();
 
 // Check if output is being piped
 const isPiped = !process.stdout.isTTY;
 
 // Export for programmatic use
-export { processFiles };
+export { processFiles, injectScriptIntoPackage };
 
 // CLI support
 if (import.meta.url === `file://${process.argv[1]}`) {
+    const projectRoot = process.cwd();
+    
+    // Check if this is first run (you could use a flag or check for existing metadata)
+    const shouldInjectScripts = process.argv.includes('--setup') || !await fs.pathExists(path.join(projectRoot, 'article', 'metadata.js'));
+    
+    if (shouldInjectScripts) {
+        console.log('🔧 Setting up weweb-dynamic-metadata...\n');
+        await injectScriptIntoPackage(projectRoot);
+    }
+    
     // Only show startup message if not piped
     if (!isPiped) {
         console.log('🚀 WeWeb Dynamic Metadata Generator\n');
@@ -41,7 +52,6 @@ if (import.meta.url === `file://${process.argv[1]}`) {
         })
         .catch(error => {
             if (isPiped) {
-                // If piped, output error as JSON
                 console.log(JSON.stringify({ error: error.message }));
             } else {
                 console.error('\n❌ Generation failed:', error.message);
