@@ -196,17 +196,10 @@ export async function processFiles() {
                     await fs.ensureDir(contentDir);
                     
                     await fs.writeFile(
-                        path.join(contentDir, 'index.html'),
-                        generateReferenceHtml(id, metadata.title, relativeTemplatePath)
+                        path.join(contentRootDir, 'index.html'),
+                        generateReferenceHtml(id, metadata.title, relativeTemplatePath, routeName),
                     );
                     
-                    // Create a small metadata.js reference
-                    const contentMetadataJsPath = path.join(contentRootDir, 'metadata.js');
-                    const metadataReference = `// Reference to central metadata file
-// This file points to the main metadata.js
-// The actual metadata is loaded from /article/metadata.js`;
-                    
-                    await fs.writeFile(contentMetadataJsPath, metadataReference, 'utf-8');
                     
                     referencesCreated++;
                 } catch (error) {
