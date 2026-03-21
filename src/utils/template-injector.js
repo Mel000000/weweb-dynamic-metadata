@@ -34,7 +34,8 @@ export async function injectScriptInTemplate(templatePath, page) {
         }
         
         // Insert script before </head>
-        template = template.replace('</head>', await metadata_injector_script(page) + '\n</head>');
+        const script = await metadata_injector_script(page);
+        template = template.replace('</head>', script + '\n</head>');
         
         // Write back
         await fs.writeFile(templatePath, template, 'utf-8');
