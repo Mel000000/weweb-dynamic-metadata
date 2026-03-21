@@ -1,9 +1,9 @@
 // src/utils/template-injector.js
 import fs from 'fs-extra';
 import path from 'path';
-import { METADATA_INJECTOR_SCRIPT } from '../templates/metadata-injector.js';
+import { metadata_injector_script } from '../templates/metadata-injector.js';
 
-export async function injectScriptInTemplate(templatePath) {
+export async function injectScriptInTemplate(templatePath, page) {
     try {
         // Check if file exists
         if (!await fs.pathExists(templatePath)) {
@@ -34,7 +34,7 @@ export async function injectScriptInTemplate(templatePath) {
         }
         
         // Insert script before </head>
-        template = template.replace('</head>', METADATA_INJECTOR_SCRIPT + '\n</head>');
+        template = template.replace('</head>', metadata_injector_script(page) + '\n</head>');
         
         // Write back
         await fs.writeFile(templatePath, template, 'utf-8');

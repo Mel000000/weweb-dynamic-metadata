@@ -172,7 +172,7 @@ export async function processFiles() {
             
             // Ensure template exists and inject script
             await ensureTemplateExists(templatePath);
-            await injectScriptInTemplate(templatePath);
+            await injectScriptInTemplate(templatePath, page);
             
             // Fetch all metadata
             const metadataMap = new Map();
