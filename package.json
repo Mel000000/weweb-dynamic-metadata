@@ -1,6 +1,6 @@
 {
   "name": "@mel000000/weweb-dynamic-metadata",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "type": "module",
   "description": "Generate dynamic metadata for WeWeb static exports",
   "main": "src/index.js",
