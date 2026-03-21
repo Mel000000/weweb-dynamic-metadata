@@ -155,13 +155,13 @@ Before using this package, ensure you have:
 
 ## Database Schema Requirements
 
-| Field | Purpose | Required | Example |
-|-------|---------|----------|---------|
-| `title` | Page title for SEO and social sharing | ✅ Yes | `"Getting Started with Web Development"` |
-| `description` | Page description for search results and social sharing | ✅ Yes | `"Learn the basics of web development..."` |
-| `image` | Featured image for social sharing (Open Graph & Twitter Cards) | ⭕ Optional | `"https://example.com/image.jpg"` |
-| `content` | Alternative to `description` (falls back to `description`) | ⭕ Optional | `"Full article content..."` |
-| `image_url` | Alternative to `image` (falls back to `image`) | ⭕ Optional | `"https://example.com/hero.jpg"` |
+| Field | Purpose | Required | Notes |
+|-------|---------|----------|-------|
+| `title` | Page title for SEO and social sharing | ✅ Yes | Used for `<title>`, `og:title`, `twitter:title` |
+| `description` | Page description for search results and social sharing | ✅ Yes | Used for meta description, `og:description`, `twitter:description` |
+| `content` | Alternative to `description` | ⭕ Optional | If `description` is not set, falls back to `content` |
+| `image` | Featured image for social sharing | ⭕ Optional | Used for `og:image`, `twitter:image` |
+| `image_url` | Alternative to `image` | ⭕ Optional | If `image` is not set, falls back to `image_url` |
 
 ### Setup
 #### 1. Configure Supabase
@@ -226,9 +226,9 @@ export default {
       route: "/article/:id",
       table: "article_metadata",             // Your Supabase table name
       metadata: {
-        title: "title",                        // Database field for title 
-        description: "description",            // Database field for description     
-        image: "featured_image"                // Database field for image
+        title: "title",                // Required: maps to window.METADATA[id].title
+        description: "excerpt",        // Required: maps to window.METADATA[id].description
+        image: "featured_image"        // Optional: maps to window.METADATA[id].image
       }
     },
     {
@@ -237,7 +237,7 @@ export default {
       metadata: {
         title: "title",
         description: "excerpt",
-        author: "brand"                        // Database field for author
+        author: "brand"                        // Ooptional: maps to window.METADATA[id].author
       }
     }
   ]
@@ -278,8 +278,14 @@ Generates tiny HTML files for each article that load the template and pass the a
 ```html
 <!-- article/1/index.html - only ~500 bytes! -->
 <script>
-  window.CURRENT_ARTICLE_ID = "1";
-  window.location.replace('../_param/index.html#1');
+  window.__REFERENCE_CONTENT_ID = "1";
+  fetch('../_param/index.html')
+    .then(response => response.text())
+    .then(html => {
+      document.open();
+      document.write(html);
+      document.close();
+    });
 </script>
 ```
 
@@ -376,14 +382,11 @@ dist/
 ├── your-page-name/
 │   ├── metadata.js                    # Central metadata for all articles
 │   ├── _param/
-│   │   ├── index.html                  # Original template (script injected)
-│   │   └── metadata.js                  # Copy for compatibility
+│   │   └── index.html                  # Original template (script injected)
 │   ├── 1/
-│   │   ├── index.html                   # Tiny reference file (~500 bytes)
-│   │   └── metadata.js                   # Points to central metadata
+│   │   └── index.html                   # Tiny reference file (~500 bytes)
 │   ├── 2/
-│   │   ├── index.html                   # Tiny reference file
-│   │   └── metadata.js                   # Points to central metadata
+│   │   └── index.html                   # Tiny reference file
 │   └── ...
 ├── assets/
 └── index.html
@@ -455,9 +458,10 @@ console.log(`Took ${result.duration} seconds`);
 |-------|--------------|----------|
 | `getOutputDir: Could not find build folder` | No WeWeb export found | Run `weweb export` first or set `outputDir` in config |
 | `Config error: Invalid or unexpected token` | BOM characters in config | Recreate file without BOM (use VSCode "Save with Encoding → UTF-8") |
-| No metadata generated | Supabase connection issue | Check your Supabase URL and anon key |
+| No metadata generated | Supabase connection issue | Check your Supabase URL and anon/secret key |
 | `Failed to fetch ID` | Table or field names wrong | Verify table and field names in config |
 | Reference files not created | Permission issues | Check write permissions in build folder |
+| **Metadata appears (og:url, canonical) but title/description missing** | **Database field names don't match what the injector expects** | **Ensure your config maps database fields to `title` and `description` (not `name` or `excerpt`)** |
 
 ## License
 
