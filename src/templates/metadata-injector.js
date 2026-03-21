@@ -1,8 +1,9 @@
 // src/templates/metadata-injector.js
 export async function metadata_injector_script(page) {
+    const baseRoute = page.route.split('/')[0];
     return `
 <!-- METADATA INJECTOR -->
-<script src="/${page.route}/metadata.js"></script>
+<script src="/${baseRoute}/metadata.js"></script>
 
 <script>
 (function() {
@@ -17,12 +18,12 @@ export async function metadata_injector_script(page) {
         const parts = path.split('/').filter(p => p.length);
         
         // Case 1: /content/2
-        if (parts[0] === ${JSON.stringify(page.route)} && parts[1] && parts[1] !== '_param') {
+        if (parts[0] === ${JSON.stringify(baseRoute)} && parts[1] && parts[1] !== '_param') {
             return parts[1];
         }
         
         // Case 2: /content/_param/?id=2
-        if (parts[0] === ${JSON.stringify(page.route)} && parts[1] === '_param') {
+        if (parts[0] === ${JSON.stringify(baseRoute)} && parts[1] === '_param') {
             return new URLSearchParams(window.location.search).get('id');
         }
         
