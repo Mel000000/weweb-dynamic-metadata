@@ -86,7 +86,7 @@ async function ensureTemplateExists(templatePath) {
 }
 
 // ========== reference HTML ==========
-function generateReferenceHtml(id, title, relativeTemplatePath) {
+function generateReferenceHtml(id, title, relativeTemplatePath, routeName) {
     return `<!DOCTYPE html>
 <html>
 <head>
@@ -111,7 +111,7 @@ function generateReferenceHtml(id, title, relativeTemplatePath) {
                 })
                 .catch(error => {
                     console.error('Failed to load template:', error);
-                    document.body.innerHTML = '<h1>Error loading article</h1><p>Please refresh the page</p>';
+                    document.body.innerHTML = '<h1>Error loading content</h1><p>Please refresh the page</p>';
                 });
         })();
     </script>
@@ -122,10 +122,11 @@ function generateReferenceHtml(id, title, relativeTemplatePath) {
     </noscript>
 </head>
 <body>
-    <p>Loading article ${id}... <a href="${relativeTemplatePath}?id=${id}">Click here if not redirected</a></p>
+    <p>Loading content ${id}... <a href="${relativeTemplatePath}?id=${id}">Click here if not redirected</a></p>
 </body>
 </html>`;
 }
+
 
 // ========== MAIN PROCESSOR ==========
 export async function processFiles() {
@@ -148,12 +149,17 @@ export async function processFiles() {
             const ids = await discoverIds(page);
             
             // Setup paths
-            const routeName = page.route.split('/')[1];
+            const routeName = page.routeName;
             const baseDir = config.outputDir || getOutputDir();
             
             const paramDir = path.join(baseDir, routeName, '_param');
             const contentRootDir = path.join(baseDir, routeName);
             const templatePath = path.join(paramDir, 'index.html');
+            
+            console.log(`📁 Processing ${routeName}...`);
+            console.log(`   IDs found: ${ids.length}`);
+            console.log(`   Template path: ${templatePath}`);
+            console.log(`   Content root: ${contentRootDir}`);
             
             await fs.ensureDir(paramDir);
             await fs.ensureDir(contentRootDir);
@@ -172,8 +178,10 @@ export async function processFiles() {
                     const metadata = await fetchMetadata(page, id);
                     metadataMap.set(String(id), metadata);
                     successCount++;
+                    console.log(`   ✅ Fetched metadata for ID: ${id}`);
                 } catch (error) {
                     failCount++;
+                    console.error(`   ❌ Failed to fetch ID ${id}:`, error.message);
                 }
             }
             
@@ -181,33 +189,38 @@ export async function processFiles() {
             const metadataObj = Object.fromEntries(metadataMap);
             const metadataJsPath = path.join(contentRootDir, 'metadata.js');
             await fs.writeFile(metadataJsPath, generateMetadataJs(metadataObj));
+            console.log(`   📝 Written metadata.js with ${metadataMap.size} entries`);
             
             // Copy to _param for compatibility
             await fs.copyFile(metadataJsPath, path.join(paramDir, 'metadata.js'));
             
-            
-            // Create reference files
+            // Create reference files for each ID
             const relativeTemplatePath = '../_param/index.html';
             let referencesCreated = 0;
-
+            
             for (const [id, metadata] of metadataMap.entries()) {
                 try {
+                    // ✅ This creates the ID-specific directory (e.g., /article/1/)
                     const contentDir = path.join(baseDir, routeName, id);
                     await fs.ensureDir(contentDir);
                     
+                    // ✅ This writes the reference HTML to the ID directory
+                    const indexPath = path.join(contentDir, 'index.html');
                     await fs.writeFile(
-                        path.join(contentDir, 'index.html'),
-                        generateReferenceHtml(id, metadata.title, relativeTemplatePath, routeName),
+                        indexPath,
+                        generateReferenceHtml(id, metadata.title, relativeTemplatePath, routeName)
                     );
                     
                     referencesCreated++;
+                    console.log(`   ✅ Created reference HTML for ID: ${id} at ${indexPath}`);
                 } catch (error) {
-                    console.error(`Failed to create reference for ID ${id}:`, error.message);
+                    console.error(`   ❌ Failed to create reference for ID ${id}:`, error.message);
                 }
             }
             
             summary.pages.push({
                 route: page.route,
+                routeName: routeName,
                 total: ids.length,
                 succeeded: successCount,
                 failed: failCount,
