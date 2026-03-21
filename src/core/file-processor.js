@@ -111,7 +111,7 @@ function generateReferenceHtml(id, title, relativeTemplatePath) {
                 })
                 .catch(error => {
                     console.error('Failed to load template:', error);
-                    document.body.innerHTML = '<h1>Error loading content</h1><p>Please refresh the page</p>';
+                    document.body.innerHTML = '<h1>Error loading article</h1><p>Please refresh the page</p>';
                 });
         })();
     </script>
@@ -188,6 +188,7 @@ export async function processFiles() {
             
             // Create reference files using the ORIGINAL working logic
             const relativeTemplatePath = '../_param/index.html';
+            let referencesCreated = 0;
             
             for (const [id, metadata] of metadataMap.entries()) {
                 try {
@@ -199,6 +200,15 @@ export async function processFiles() {
                         generateReferenceHtml(id, metadata.title, relativeTemplatePath)
                     );
                     
+                    // Create a small metadata.js reference
+                    const contentMetadataJsPath = path.join(contentRootDir, 'metadata.js');
+                    const metadataReference = `// Reference to central metadata file
+// This file points to the main metadata.js
+// The actual metadata is loaded from /article/metadata.js`;
+                    
+                    await fs.writeFile(contentMetadataJsPath, metadataReference, 'utf-8');
+                    
+                    referencesCreated++;
                 } catch (error) {
                     // Silently continue
                 }
@@ -210,10 +220,11 @@ export async function processFiles() {
                 succeeded: successCount,
                 failed: failCount,
                 metadataEntries: metadataMap.size,
+                referencesCreated
             });
             
             summary.totalMetadataEntries += metadataMap.size;
-            summary.outputDirectories.push(contentRootDir);
+            summary.outputDirectories.push(contentRootDirRootDir);
         }
         
         summary.duration = ((Date.now() - startTime) / 1000).toFixed(2);
