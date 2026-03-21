@@ -1,6 +1,6 @@
 // src/templates/metadata-injector.js
 export async function metadata_injector_script(page) {
-    const baseRoute = page.route.split('/')[0];
+    const baseRoute = page.route.split('/')[1];
     return `
 <!-- METADATA INJECTOR -->
 <script src="/${baseRoute}/metadata.js"></script>

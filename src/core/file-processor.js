@@ -18,7 +18,7 @@ async function readConfig() {
         
         return {
             supabase,
-            outputDir, // Pass this through
+            outputDir, 
             pages: pages.map(page => ({
                 route: page.route,
                 table: page.table,
@@ -65,18 +65,6 @@ function generateMetadataJs(metadataObject) {
 window.METADATA = ${JSON.stringify(metadataObject, null, 2)};`;
 }
 
-async function updateTemplateScriptSrc(templatePath, newSrc) {
-    try {
-        let content = await fs.readFile(templatePath, 'utf-8');
-        content = content.replace(
-            /<script src="\/article\/metadata\.js"><\/script>/,
-            `<script src="${newSrc}"></script>`
-        );
-        await fs.writeFile(templatePath, content, 'utf-8');
-    } catch (error) {
-        // Silently fail - this is non-critical
-    }
-}
 
 async function ensureTemplateExists(templatePath) {
     if (await fs.pathExists(templatePath)) return;
@@ -97,7 +85,7 @@ async function ensureTemplateExists(templatePath) {
     await fs.writeFile(templatePath, minimalTemplate, 'utf-8');
 }
 
-// ========== FIXED: Original working reference HTML ==========
+// ========== reference HTML ==========
 function generateReferenceHtml(id, title, relativeTemplatePath) {
     return `<!DOCTYPE html>
 <html>
@@ -110,7 +98,7 @@ function generateReferenceHtml(id, title, relativeTemplatePath) {
     <script>
         (function() {
             // Store the ID in a global variable for the template to use
-            window.CURRENT_ARTICLE_ID = ${JSON.stringify(String(id))};
+            window.__REFERENCE_CONTENT_ID = ${JSON.stringify(String(id))};
             
             // Fetch the template and replace the current document
             fetch('${relativeTemplatePath}')
@@ -123,7 +111,7 @@ function generateReferenceHtml(id, title, relativeTemplatePath) {
                 })
                 .catch(error => {
                     console.error('Failed to load template:', error);
-                    document.body.innerHTML = '<h1>Error loading article</h1><p>Please refresh the page</p>';
+                    document.body.innerHTML = '<h1>Error loading content</h1><p>Please refresh the page</p>';
                 });
         })();
     </script>
@@ -164,11 +152,11 @@ export async function processFiles() {
             const baseDir = config.outputDir || getOutputDir();
             
             const paramDir = path.join(baseDir, routeName, '_param');
-            const articleRootDir = path.join(baseDir, routeName);
+            const contentRootDir = path.join(baseDir, routeName);
             const templatePath = path.join(paramDir, 'index.html');
             
             await fs.ensureDir(paramDir);
-            await fs.ensureDir(articleRootDir);
+            await fs.ensureDir(contentRootDir);
             
             // Ensure template exists and inject script
             await ensureTemplateExists(templatePath);
@@ -191,38 +179,26 @@ export async function processFiles() {
             
             // Write metadata.js
             const metadataObj = Object.fromEntries(metadataMap);
-            const metadataJsPath = path.join(articleRootDir, 'metadata.js');
+            const metadataJsPath = path.join(contentRootDir, 'metadata.js');
             await fs.writeFile(metadataJsPath, generateMetadataJs(metadataObj));
             
             // Copy to _param for compatibility
             await fs.copyFile(metadataJsPath, path.join(paramDir, 'metadata.js'));
             
-            // Update template script src
-            await updateTemplateScriptSrc(templatePath, '/article/metadata.js');
             
             // Create reference files using the ORIGINAL working logic
             const relativeTemplatePath = '../_param/index.html';
-            let referencesCreated = 0;
             
             for (const [id, metadata] of metadataMap.entries()) {
                 try {
-                    const articleDir = path.join(baseDir, routeName, id);
-                    await fs.ensureDir(articleDir);
+                    const contentDir = path.join(baseDir, routeName, id);
+                    await fs.ensureDir(contentDir);
                     
                     await fs.writeFile(
-                        path.join(articleDir, 'index.html'),
+                        path.join(contentDir, 'index.html'),
                         generateReferenceHtml(id, metadata.title, relativeTemplatePath)
                     );
                     
-                    // Create a small metadata.js reference
-                    const articleMetadataJsPath = path.join(articleDir, 'metadata.js');
-                    const metadataReference = `// Reference to central metadata file
-// This file points to the main metadata.js
-// The actual metadata is loaded from /article/metadata.js`;
-                    
-                    await fs.writeFile(articleMetadataJsPath, metadataReference, 'utf-8');
-                    
-                    referencesCreated++;
                 } catch (error) {
                     // Silently continue
                 }
@@ -234,11 +210,10 @@ export async function processFiles() {
                 succeeded: successCount,
                 failed: failCount,
                 metadataEntries: metadataMap.size,
-                referencesCreated
             });
             
             summary.totalMetadataEntries += metadataMap.size;
-            summary.outputDirectories.push(articleRootDir);
+            summary.outputDirectories.push(contentRootDir);
         }
         
         summary.duration = ((Date.now() - startTime) / 1000).toFixed(2);
