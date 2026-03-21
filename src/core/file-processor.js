@@ -224,7 +224,6 @@ export async function processFiles() {
             });
             
             summary.totalMetadataEntries += metadataMap.size;
-            summary.outputDirectories.push(contentRootDirRootDir);
         }
         
         summary.duration = ((Date.now() - startTime) / 1000).toFixed(2);
