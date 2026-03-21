@@ -186,24 +186,23 @@ export async function processFiles() {
             await fs.copyFile(metadataJsPath, path.join(paramDir, 'metadata.js'));
             
             
-            // Create reference files using the ORIGINAL working logic
+            // Create reference files
             const relativeTemplatePath = '../_param/index.html';
             let referencesCreated = 0;
-            
+
             for (const [id, metadata] of metadataMap.entries()) {
                 try {
                     const contentDir = path.join(baseDir, routeName, id);
                     await fs.ensureDir(contentDir);
                     
                     await fs.writeFile(
-                        path.join(contentRootDir, 'index.html'),
+                        path.join(contentDir, 'index.html'),
                         generateReferenceHtml(id, metadata.title, relativeTemplatePath, routeName),
                     );
                     
-                    
                     referencesCreated++;
                 } catch (error) {
-                    // Silently continue
+                    console.error(`Failed to create reference for ID ${id}:`, error.message);
                 }
             }
             
