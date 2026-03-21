@@ -214,24 +214,30 @@ The package uses dotenv to automatically load these environment variables when y
 Create ``weweb.config.js`` in your project root:
 ```javascript
 export default {
-  // Your Supabase configuration
   supabase: {
     url: process.env.SUPABASE_URL,
-    apikey: process.env.SUPABASE_KEY  // Works with both anon and secret keys
+    anonKey: process.env.SUPABASE_KEY     // Works with both anon and secret keys
   },
   
-  // Optional: Specify your build folder (defaults to ./dist)
-  outputDir: "./dist",
+  outputDir: "./",
   
-  // Define your dynamic routes
   pages: [
     {
-      route: "/your-page-name/:id",
-      table: "table-view-name",              // Your Supabase table name
+      route: "/article/:id",
+      table: "article_metadata",             // Your Supabase table name
       metadata: {
-        title: "title",                // Database field for title 
-        content: "excerpt",            // Database field for description
-        image: "featured_image"        // Database field for image
+        title: "title",                        // Database field for title 
+        description: "description",            // Database field for description     
+        image: "featured_image"                // Database field for image
+      }
+    },
+    {
+      route: "/product/:id",
+      table: "products_meta",
+      metadata: {
+        title: "title",
+        description: "excerpt",
+        author: "brand"                        // Database field for author
       }
     }
   ]
