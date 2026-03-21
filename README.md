@@ -21,11 +21,13 @@ A build-time tool that generates unique SEO metadata for each dynamic page in yo
 - [Features](#features)
 - [Quick Start](#quick-start)
 - [Prerequisites Checklist](#prerequisites-checklist)
+- [Database Schema Requirements](#database-schema-requirements)
 - [Setup](#setup)
   - [1. Configure Supabase](#1-configure-supabase)
-  - [2. Set Up Environment Variables](#2-set-up-environment-variables)
-  - [3. Create Config File](#3-create-config-file)
-  - [4. Run the Generator](#4-run-the-generator)
+  - [2. Get Your Supabase API Key](#2-get-your-supabase-api-key)
+  - [3. Set Up Environment Variables](#3-set-up-environment-variables)
+  - [4. Create Config File](#4-create-config-file)
+  - [5. Run the Generator](#5-run-the-generator)
 - [How It Works](#how-it-works)
   - [1. Reads Your Config](#1-reads-your-config)
   - [2. Discovers Content IDs](#2-discovers-content-ids)
@@ -150,6 +152,16 @@ Before using this package, ensure you have:
 - A Supabase project with your content
 - Your Supabase URL and anon key ready
 - Your WeWeb build folder (usually ``dist/`` or project root)
+
+## Database Schema Requirements
+
+| Field | Purpose | Required | Example |
+|-------|---------|----------|---------|
+| `title` | Page title for SEO and social sharing | ✅ Yes | `"Getting Started with Web Development"` |
+| `description` | Page description for search results and social sharing | ✅ Yes | `"Learn the basics of web development..."` |
+| `image` | Featured image for social sharing (Open Graph & Twitter Cards) | ⭕ Optional | `"https://example.com/image.jpg"` |
+| `content` | Alternative to `description` (falls back to `description`) | ⭕ Optional | `"Full article content..."` |
+| `image_url` | Alternative to `image` (falls back to `image`) | ⭕ Optional | `"https://example.com/hero.jpg"` |
 
 ### Setup
 #### 1. Configure Supabase
