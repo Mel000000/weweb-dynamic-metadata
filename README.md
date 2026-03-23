@@ -116,7 +116,7 @@ npm install --save-dev @mel000000/weweb-dynamic-metadata
 # Generate metadata (run after each WeWeb export)
 npx @mel000000/weweb-dynamic-metadata
 
-# That's it! Your articles now have unique SEO metadata
+# That's it! Your pages now have unique SEO metadata
 ```
 
 ## Features
@@ -135,13 +135,13 @@ npx @mel000000/weweb-dynamic-metadata
 # 1. Install the package
 npm install --save-dev @mel000000/weweb-dynamic-metadata
 
-# 2. Create weweb.config.js in your project root and env-File
+# 2. Create weweb.config.js and env-File in your project root
 # (see Setup section below)
 
 # 3. Run it!
 npx @mel000000/weweb-dynamic-metadata
 
-# Done! Your articles now have unique metadata
+# Done! Your pages now have unique metadata
 ```
 ## Getting Started
 
