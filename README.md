@@ -135,7 +135,7 @@ npx @mel000000/weweb-dynamic-metadata
 # 1. Install the package
 npm install --save-dev @mel000000/weweb-dynamic-metadata
 
-# 2. Create weweb.config.js in your project root
+# 2. Create weweb.config.js in your project root and env-File
 # (see Setup section below)
 
 # 3. Run it!
